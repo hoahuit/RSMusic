@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Music Recommender</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: #0f0f0f;
+            color: #fff;
+            line-height: 1.6;
+        }
+
+        /* Header Styles */
+        .site-header {
+            background: rgba(0,0,0,0.9);
+            padding: 15px 40px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+        }
+
+        .header-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header-logo a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #fff;
+            text-decoration: none;
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .header-logo i {
+            color: #4a90e2;
+        }
+
+        .header-menu {
+            display: flex;
+            gap: 30px;
+        }
+
+        .header-menu a {
+            color: #fff;
+            text-decoration: none;
+            font-size: 16px;
+            padding: 8px 15px;
+            border-radius: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .header-menu a.active,
+        .header-menu a:hover {
+            background: rgba(74,144,226,0.2);
+            color: #4a90e2;
+        }
+
+        .header-auth {
+            display: flex;
+            gap: 15px;
+        }
+
+        .btn-login,
+        .btn-register {
+            padding: 8px 20px;
+            border-radius: 20px;
+            border: none;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-login {
+            background: transparent;
+            color: #fff;
+            border: 1px solid #4a90e2;
+        }
+
+        .btn-register {
+            background: #4a90e2;
+            color: #fff;
+        }
+
+        .btn-login:hover {
+            background: rgba(74,144,226,0.2);
+        }
+
+        .btn-register:hover {
+            background: #357abd;
+        }
+
+        /* Music Container Styles */
+        .music-container {
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 40px;
+            background-image: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.9)), 
+                             url('https://source.unsplash.com/1600x900/?concert,stage');
+            background-size: cover;
+            background-position: center;
+            border-radius: 20px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+            position: relative;
+        }
+
+        .music-overlay {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .music-player {
+            margin-bottom: 40px;
+        }
+
+        .album-art {
+            width: 300px;
+            height: 300px;
+            margin: 0 auto;
+            position: relative;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .player-controls {
+            position: absolute;
+            bottom: 60px;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .control-btn {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .control-btn:hover {
+            background: rgba(255,255,255,0.3);
+            transform: scale(1.1);
+        }
+
+        .play-btn {
+            width: 50px;
+            height: 50px;
+            background: #4a90e2;
+        }
+
+        .progress-bar {
+            position: absolute;
+            bottom: 40px;
+            left: 20px;
+            right: 20px;
+            height: 4px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 2px;
+        }
+
+        .progress {
+            width: 30%;
+            height: 100%;
+            background: #4a90e2;
+            border-radius: 2px;
+        }
+
+        .time-info {
+            position: absolute;
+            bottom: 15px;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 20px;
+            color: #fff;
+            font-size: 12px;
+        }
+
+        .music-title {
+            font-size: 42px;
+            margin-bottom: 10px;
+            color: #fff;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .music-subtitle {
+            font-size: 20px;
+            color: #ccc;
+            margin-bottom: 40px;
+        }
+
+        .music-form {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .music-label {
+            display: block;
+            margin-bottom: 10px;
+            color: #fff;
+            font-size: 18px;
+        }
+
+        .music-select {
+            width: 100%;
+            padding: 12px;
+            border-radius: 10px;
+            border: 2px solid rgba(255,255,255,0.1);
+            background: rgba(0,0,0,0.3);
+            color: #fff;
+            font-size: 16px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .music-select:focus {
+            border-color: #4a90e2;
+        }
+
+        .music-button {
+            background: #4a90e2;
+            color: #fff;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .music-button:hover {
+            background: #357abd;
+            transform: translateY(-2px);
+        }
+
+        /* Footer Styles */
+        .site-footer {
+            background: #111;
+            color: #fff;
+            padding: 60px 40px 20px;
+            margin-top: 80px;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 40px;
+        }
+
+        .footer-section h3 {
+            color: #4a90e2;
+            margin-bottom: 20px;
+            font-size: 20px;
+        }
+
+        .footer-section p {
+            color: #999;
+            line-height: 1.6;
+        }
+
+        .footer-section ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .footer-section ul li {
+            margin-bottom: 10px;
+        }
+
+        .footer-section ul a {
+            color: #999;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-section ul a:hover {
+            color: #4a90e2;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 15px;
+        }
+
+        .social-links a {
+            color: #fff;
+            background: rgba(255,255,255,0.1);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .social-links a:hover {
+            background: #4a90e2;
+            transform: translateY(-3px);
+        }
+
+        .footer-bottom {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            color: #666;
+        }
+
+        @media (max-width: 768px) {
+            .header-nav {
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .header-menu {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .footer-content {
+                grid-template-columns: 1fr;
+            }
+
+            .music-container {
+                margin: 20px;
+                padding: 20px;
+            }
+            
+            .music-title {
+                font-size: 32px;
+            }
+            
+            .music-subtitle {
+                font-size: 18px;
+            }
+
+            .album-art {
+                width: 250px;
+                height: 250px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="site-header">
+        <nav class="header-nav">
+            <div class="header-logo">
+                <a href="{{ url_for('app.index') }}">
+                    <i class="fas fa-music"></i>
+                    <span>Music Recommender</span>
+                </a>
+            </div>
+            <div class="header-menu">
+                <a href="{{ url_for('app.index') }}" class="active">Home</a>
+                <a href="#">Browse</a>
+                <a href="#">About</a>
+            </div>
+            <div class="header-auth">
+                <button class="btn-login">Login</button>
+                <button class="btn-register">Register</button>
+            </div>
+        </nav>
+    </header>
+
+    <div class="music-container">
+        <div class="music-overlay">
+            <div class="music-player">
+                <div class="album-art">
+                    <img src="https://variety.com/wp-content/uploads/2022/07/Music-Streaming-Wars.jpg" alt="Album Art" id="albumArt" style="width: 100%; height: 100%; object-fit: cover;">
+                    <div class="player-controls">
+                        <button class="control-btn"><i class="fas fa-step-backward"></i></button>
+                        <button class="control-btn play-btn"><i class="fas fa-play"></i></button>
+                        <button class="control-btn"><i class="fas fa-step-forward"></i></button>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress"></div>
+                    </div>
+                    <div class="time-info">
+                        <span class="current-time">0:00</span>
+                        <span class="total-time">3:45</span>
+                    </div>
+                </div>
+            </div>
+
+            <h2 class="music-title">Music Recommendation System</h2>
+            <p class="music-subtitle">Discover your next favorite song</p>
+            
+            <form method="post" action="{{ url_for('app.recommend') }}" class="music-form">
+                <div class="form-group">
+                    <label for="song_id" class="music-label">Choose Your Song</label>
+                    <select id="song_id" name="song_id" required class="music-select">
+                        <option value="" disabled selected>Select a song from our library</option>
+                        {% for song in songs %}
+                            <option value="{{ song.SongID }}">{{ song.Title }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <button type="submit" class="music-button">
+                    <i class="fas fa-magic"></i> Get Recommendations
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>About Us</h3>
+                <p>We help you discover new music based on your preferences using advanced recommendation algorithms.</p>
+            </div>
+            <div class="footer-section">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="#">Home</a></li>
+                    <li><a href="#">Browse Music</a></li>
+                    <li><a href="#">Contact</a></li>
+                    <li><a href="#">Privacy Policy</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Connect With Us</h3>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-facebook"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-youtube"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 Music Recommender. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const playBtn = document.querySelector('.play-btn');
+            let isPlaying = false;
+
+            playBtn.addEventListener('click', function() {
+                isPlaying = !isPlaying;
+                if (isPlaying) {
+                    playBtn.innerHTML = '<i class="fas fa-pause"></i>';
+                } else {
+                    playBtn.innerHTML = '<i class="fas fa-play"></i>';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
